@@ -26,6 +26,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +49,8 @@ public class KeyboardSkinNameFinder {
             this.themeName = themeName;
         }
     }
+
+    private static boolean SORT_BY_THEME_NAME = true;
 
     private static SAXBuilder sSaxBuilder = new SAXBuilder();
 
@@ -84,6 +87,9 @@ public class KeyboardSkinNameFinder {
                     break;
                 }
             }
+        }
+        if (SORT_BY_THEME_NAME) {
+            Collections.sort(namePairs, (one, two) -> one.themeName.compareTo(two.themeName));
         }
         printMapFormatted(namePairs);
     }
@@ -124,10 +130,10 @@ public class KeyboardSkinNameFinder {
     private static String createFiller(int length) {
         StringBuilder filler = new StringBuilder();
         filler.append(' ');
-        for (int i = 0; i < length + 1; ++i) {
+        for (int i = 0; i < length; ++i) {
             filler.append('-');
         }
-        filler.append("> ");
+        filler.append("-> ");
         return filler.toString();
     }
 }
