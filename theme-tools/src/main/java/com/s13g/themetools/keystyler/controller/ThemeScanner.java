@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package com.s13g.themetools.lib;
+package com.s13g.themetools.keystyler.controller;
+
+import com.s13g.themetools.keystyler.model.Theme;
 
 import java.io.File;
 import java.util.ArrayList;

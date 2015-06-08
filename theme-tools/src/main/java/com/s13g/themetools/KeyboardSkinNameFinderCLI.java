@@ -16,13 +16,12 @@
 
 package com.s13g.themetools;
 
-import com.s13g.themetools.lib.Theme;
-import com.s13g.themetools.lib.ThemeScanner;
+import com.s13g.themetools.keystyler.model.Theme;
+import com.s13g.themetools.keystyler.controller.ThemeScanner;
 import org.jdom2.JDOMException;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 

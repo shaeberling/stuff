@@ -14,14 +14,19 @@
  * limitations under the License.
  */
 
-package com.s13g.themetools.lib;
+package com.s13g.themetools.keystyler.controller;
 
+import com.s13g.themetools.keystyler.model.Theme;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;

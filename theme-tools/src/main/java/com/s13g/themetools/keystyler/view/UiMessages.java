@@ -1,4 +1,4 @@
-package com.s13g.themetools.keystyler;
+package com.s13g.themetools.keystyler.view;
 
 /**
  * All Messages used in the UI. These need translation.

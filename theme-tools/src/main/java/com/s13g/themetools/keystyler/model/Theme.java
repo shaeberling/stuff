@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.s13g.themetools.lib;
+package com.s13g.themetools.keystyler.model;
 
 import java.io.File;
 

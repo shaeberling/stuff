@@ -16,23 +16,23 @@
 
 package com.s13g.themetools.keystyler;
 
+import com.s13g.themetools.keystyler.controller.MainController;
+import com.s13g.themetools.keystyler.view.MainFxView;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
-
-import java.io.File;
-import java.util.Optional;
 
 /**
  * Main application class for KeyStylerApp.
  */
-public class KeyStylerApp extends Application implements ViewController {
+public class KeyStylerApp extends Application {
   private static final String APP_TITLE = "Keyboard Styler";
 
   private Stage mStage;
+
+  private MainController mMainController;
 
   public static void main(String[] args) {
     Application.launch(args);
@@ -42,9 +42,11 @@ public class KeyStylerApp extends Application implements ViewController {
   public void start(Stage stage) throws Exception {
     mStage = stage;
 
-    FXMLLoader loader = new FXMLLoader(getClass().getResource("keystyler.fxml"));
+    FXMLLoader loader = new FXMLLoader(getClass().getResource("view/keystyler.fxml"));
     Parent root = loader.load();
-    ((MainFxEventController) loader.getController()).setStage(this);
+    MainFxView mainFxView = (MainFxView) loader.getController();
+    mainFxView.initialize(stage);
+    mMainController = new MainController(mainFxView);
 
     Scene mainScene = new Scene(root, 800, 600);
     stage.setTitle(APP_TITLE);
@@ -52,10 +54,5 @@ public class KeyStylerApp extends Application implements ViewController {
     stage.show();
   }
 
-  @Override
-  public Optional<File> getUserChosenThemeRoot() {
-    DirectoryChooser chooser = new DirectoryChooser();
-    chooser.setTitle(UiMessages.OPEN_THEME_FOLDER);
-    return Optional.ofNullable(chooser.showDialog(mStage));
-  }
+
 }
