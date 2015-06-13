@@ -19,6 +19,7 @@ package com.s13g.themetools.keystyler;
 import com.s13g.themetools.keystyler.controller.MainController;
 import com.s13g.themetools.keystyler.view.MainFxView;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -35,6 +36,8 @@ public class KeyStylerApp extends Application {
   private MainController mMainController;
 
   public static void main(String[] args) {
+    // Exit the application when the last window is closed.
+    Platform.setImplicitExit(true);
     Application.launch(args);
   }
 

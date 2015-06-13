@@ -14,26 +14,19 @@
  * limitations under the License.
  */
 
-package com.s13g.themetools.keystyler.model;
+package com.s13g.themetools.keystyler.controller;
 
-import java.io.File;
+import com.s13g.themetools.keystyler.model.Theme;
 
 /**
- * This is a single keyboard theme.
+ * Used to read theme data from a ZIP file, such as the theme XML and the images.
  */
-public class Theme {
-  public final String name;
-  public final File location;
-  public final ThemeStyle style;
+public class ThemeImageReader {
+  private final Theme mTheme;
 
-  public Theme(String name, File location, ThemeStyle style) {
-    this.name = name;
-    this.location = location;
-    this.style = style;
+  public ThemeImageReader(Theme theme) {
+    mTheme = theme;
   }
 
-  @Override
-  public String toString() {
-    return name + " (" + location.getName() + ")";
-  }
+
 }
