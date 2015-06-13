@@ -16,6 +16,9 @@
 
 package com.s13g.themetools.keystyler.model;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * This is the model created from the parsed skins.xml. I haven't yet found a complete XML schema
  * for this, so for now this will cover all the ones I come across, which might not include all
@@ -24,35 +27,78 @@ package com.s13g.themetools.keystyler.model;
  * An example can be found here: http://www.dexilog.com/smartkeyboard/wiki/Open_Skin_Format
  */
 public class ThemeStyle {
+  public enum Entry {
+    /** NOTE: According to the example the background can also be defined as two colors. */
+    BACKGROUND_IMAGE,
+    KEY_BACKGROUND_NORMAL,
+    KEY_BACKGROUND_PRESSED,
+    MOD_KEY_BACKGROUND_NORMAL,
+    MOD_KEY_BACKGROUND_PRESSED,
+    MOD_KEY_BACKGROUND_NORMAL_OFF,
+    MOD_KEY_BACKGROUND_PRESSED_OFF,
+    MOD_KEY_BACKGROUND_NORMAL_ON,
+    MOD_KEY_BACKGROUND_PRESSED_ON,
+    SYMBOLS_DELETE,
+    SYMBOLS_RETURN,
+    SYMBOLS_SEARCH,
+    SYMBOLS_SHIFT,
+    SYMBOLS_SHIFT_LOCKED,
+    SYMBOLS_SPACE,
+    SYMBOLS_MIC,
+    COLORS_LABEL,
+    COLORS_ALT_LABEL,
+    COLORS_MOD_LABEL
+  }
+
   /**
-   * The background image.
-   * NOTE: According to the example the background can also be defined as two colors.
+   * Class holding data about the theme style items.
    */
-  public String backgroundImage;
+  public static class Item {
+    public String name;
+    public byte[] data;
+    public boolean hdpi;
+  }
 
-  // Key-Background
-  public String keyBackgroundNormal;
-  public String keyBackgroundPressed;
+  /** The map of items extracted from the skins.xml file. */
+  private final Map<Entry, Item> mItems = new HashMap<>();
 
-  // Mod-Key-Background
-  public String modKeyBackgroundNormal;
-  public String modKeyBackgroundPressed;
-  public String modKeyBackgroundNormalOff;
-  public String modKeyBackgroundPressedOff;
-  public String modKeyBackgroundNormalOn;
-  public String modKeyBackgroundPressedOn;
+  /**
+   * Sets the name of the item.
+   *
+   * @param entry which entry to set the name for.
+   * @param name  the name of the item.
+   */
+  public void setItemName(Entry entry, String name) {
+    getItem(entry).name = name;
+  }
 
-  // Symbols
-  public String symbolsDelete;
-  public String symbolsReturn;
-  public String symbolsSearch;
-  public String symbolsShift;
-  public String symbolsShiftLocked;
-  public String symbolsSpace;
-  public String symbolsMic;
+  /**
+   * Returns the items data for the given entry.
+   *
+   * @param entry the entry for which to get the data for.
+   * @return The data for the given entry, if present.
+   */
+  public byte[] getItemData(Entry entry) {
+    return getItem(entry).data;
+  }
 
-  // Colors
-  public String colorsLabel;
-  public String colorsAltLabel;
-  public String colorsModLabel;
+  /**
+   * @return A map keys by the name of the entry.
+   */
+  public Map<String, Item> getReversedMap(String prefix) {
+    Map<String, Item> reversedMap = new HashMap<>();
+    mItems.values().forEach((item) -> {
+      if (item.name != null) {
+        reversedMap.put(prefix + item.name, item);
+      }
+    });
+    return reversedMap;
+  }
+
+  private Item getItem(Entry entry) {
+    if (!mItems.containsKey(entry)) {
+      mItems.put(entry, new Item());
+    }
+    return mItems.get(entry);
+  }
 }

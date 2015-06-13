@@ -16,20 +16,18 @@
 
 package com.s13g.themetools.keystyler.view;
 
+import com.s13g.themetools.keystyler.controller.MainController;
 import com.s13g.themetools.keystyler.model.Theme;
-import com.s13g.themetools.keystyler.util.Listener;
 
-import java.io.File;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * The main 'view' interface for the MVC architecture.
  */
 public interface MainViewInterface {
-  Optional<File> showDirectoryChooser();
-
-  void setChooseFolderButtonListener(Listener listener);
+  void setController(MainController mainController);
 
   void setScannedThemes(List<Theme> themes);
+
+  void setSelectedTheme(Theme theme);
 }

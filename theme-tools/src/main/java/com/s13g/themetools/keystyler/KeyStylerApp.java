@@ -16,7 +16,7 @@
 
 package com.s13g.themetools.keystyler;
 
-import com.s13g.themetools.keystyler.controller.MainController;
+import com.s13g.themetools.keystyler.controller.MainControllerImpl;
 import com.s13g.themetools.keystyler.view.MainFxView;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -33,11 +33,9 @@ public class KeyStylerApp extends Application {
 
   private Stage mStage;
 
-  private MainController mMainController;
+  private MainControllerImpl mMainController;
 
   public static void main(String[] args) {
-    // Exit the application when the last window is closed.
-    Platform.setImplicitExit(true);
     Application.launch(args);
   }
 
@@ -45,16 +43,19 @@ public class KeyStylerApp extends Application {
   public void start(Stage stage) throws Exception {
     mStage = stage;
 
+    // Make sure we exit the application when the main stage closes.
+    mStage.setOnCloseRequest((e) -> Platform.exit());
+
     FXMLLoader loader = new FXMLLoader(getClass().getResource("view/keystyler.fxml"));
     Parent root = loader.load();
     MainFxView mainFxView = (MainFxView) loader.getController();
     mainFxView.initialize(stage);
-    mMainController = new MainController(mainFxView);
+    mMainController = new MainControllerImpl(mainFxView);
 
     Scene mainScene = new Scene(root, 800, 600);
-    stage.setTitle(APP_TITLE);
-    stage.setScene(mainScene);
-    stage.show();
+    mStage.setTitle(APP_TITLE);
+    mStage.setScene(mainScene);
+    mStage.show();
   }
 
 

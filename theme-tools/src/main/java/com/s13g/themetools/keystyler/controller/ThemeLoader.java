@@ -16,8 +16,10 @@
 
 package com.s13g.themetools.keystyler.controller;
 
+import com.google.common.io.ByteStreams;
 import com.s13g.themetools.keystyler.model.Theme;
 import com.s13g.themetools.keystyler.model.ThemeStyle;
+import com.s13g.themetools.keystyler.model.ThemeStyle.Entry;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
@@ -28,6 +30,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -56,11 +59,42 @@ public class ThemeLoader {
     try {
       ZipInputStream zin = new ZipInputStream(new FileInputStream(mThemeFile));
       ZipEntry entry;
+
+      // First we need to get the skin.xml entry and create the basic theme file from it.
+      Theme theme = null;
       while ((entry = zin.getNextEntry()) != null) {
         if (entry.getName().equals("skin.xml")) {
-          return Optional.ofNullable(parse(mThemeFile, zin));
+          theme = parse(mThemeFile, zin);
+          break;
         }
       }
+      zin.close();
+
+      // Nothing we can do if a theme file could not be created.
+      if (theme == null) {
+        return Optional.empty();
+      }
+
+      // Create two maps of entry name to item. This is used to quickly map the entries to the
+      // ZIP file entries.
+      Map<String, ThemeStyle.Item> nameToItemHdpi = theme.style.getReversedMap("drawable-hdpi/");
+      Map<String, ThemeStyle.Item> nameToItemDefault = theme.style.getReversedMap("drawable/");
+
+      // Scan the ZIP file again to match the entries for the items, and read in the bytes when a
+      // match is found.
+      zin = new ZipInputStream(new FileInputStream(mThemeFile));
+      while ((entry = zin.getNextEntry()) != null) {
+        String entryName = entry.getName();
+        if (nameToItemHdpi.containsKey(entryName)) {
+          nameToItemHdpi.get(entryName).hdpi = true;
+          nameToItemHdpi.get(entryName).data = ByteStreams.toByteArray(zin);
+        } else if (nameToItemDefault.containsKey(entryName)) {
+          nameToItemDefault.get(entryName).hdpi = false;
+          nameToItemDefault.get(entryName).data = ByteStreams.toByteArray(zin);
+        }
+      }
+      zin.close();
+      return Optional.of(theme);
     } catch (JDOMException e) {
       System.err.println("Could not parse XML file: " + e.getMessage() + " - " + mThemeFile);
     } catch (FileNotFoundException e) {
@@ -102,38 +136,43 @@ public class ThemeLoader {
     // NOTE: According to the example, background can also have two colors defined instead of an
     // image. This currently does not support such themes. So we simply don't supply a background;
     if (backgroundImage != null) {
-      style.backgroundImage = backgroundImage.getText();
+      style.setItemName(Entry.BACKGROUND_IMAGE, backgroundImage.getText());
     } else {
       System.err.println("Theme does not have background/image. Skipping.");
     }
 
     Element keyBackground = root.getChild("key-background");
-    style.keyBackgroundNormal = keyBackground.getChildText("normal");
-    style.keyBackgroundPressed = keyBackground.getChildText("pressed");
+    style.setItemName(Entry.KEY_BACKGROUND_NORMAL, keyBackground.getChildText("normal"));
+    style.setItemName(Entry.KEY_BACKGROUND_PRESSED, keyBackground.getChildText("pressed"));
 
     Element modKeyBackground = root.getChild("mod-key-background");
-    style.modKeyBackgroundNormal = modKeyBackground.getChildText("normal");
-    style.modKeyBackgroundPressed = modKeyBackground.getChildText("pressed");
-    style.modKeyBackgroundNormalOff = modKeyBackground.getChildText("normal-off");
-    style.modKeyBackgroundPressedOff = modKeyBackground.getChildText("pressed-off");
-    style.modKeyBackgroundNormalOn = modKeyBackground.getChildText("normal-on");
-    style.modKeyBackgroundPressedOn = modKeyBackground.getChildText("pressed-on");
+    style.setItemName(Entry.MOD_KEY_BACKGROUND_NORMAL,
+            modKeyBackground.getChildText("normal"));
+    style.setItemName(Entry.MOD_KEY_BACKGROUND_PRESSED,
+            modKeyBackground.getChildText("pressed"));
+    style.setItemName(Entry.MOD_KEY_BACKGROUND_NORMAL_OFF,
+            modKeyBackground.getChildText("normal-off"));
+    style.setItemName(Entry.MOD_KEY_BACKGROUND_PRESSED_OFF,
+            modKeyBackground.getChildText("pressed-off"));
+    style.setItemName(Entry.MOD_KEY_BACKGROUND_NORMAL_ON,
+            modKeyBackground.getChildText("normal-on"));
+    style.setItemName(Entry.MOD_KEY_BACKGROUND_PRESSED_ON,
+            modKeyBackground.getChildText("pressed-on"));
 
     Element symbols = root.getChild("symbols");
-    style.symbolsDelete = symbols.getChildText("delete");
-    style.symbolsReturn = symbols.getChildText("return");
-    style.symbolsSearch = symbols.getChildText("search");
-    style.symbolsShift = symbols.getChildText("shift");
-    style.symbolsShiftLocked = symbols.getChildText("shift-locked");
-    style.symbolsSpace = symbols.getChildText("space");
-    style.symbolsMic = symbols.getChildText("mic");
+    style.setItemName(Entry.SYMBOLS_DELETE, symbols.getChildText("delete"));
+    style.setItemName(Entry.SYMBOLS_RETURN, symbols.getChildText("return"));
+    style.setItemName(Entry.SYMBOLS_SEARCH, symbols.getChildText("search"));
+    style.setItemName(Entry.SYMBOLS_SHIFT, symbols.getChildText("shift"));
+    style.setItemName(Entry.SYMBOLS_SHIFT_LOCKED, symbols.getChildText("shift-locked"));
+    style.setItemName(Entry.SYMBOLS_SPACE, symbols.getChildText("space"));
+    style.setItemName(Entry.SYMBOLS_MIC, symbols.getChildText("mic"));
 
     Element colors = root.getChild("colors");
-    style.colorsLabel = colors.getChildText("label");
-    style.colorsAltLabel = colors.getChildText("alt-label");
-    style.colorsModLabel = colors.getChildText("mod-label");
+    style.setItemName(Entry.COLORS_LABEL, colors.getChildText("label"));
+    style.setItemName(Entry.COLORS_ALT_LABEL, colors.getChildText("alt-label"));
+    style.setItemName(Entry.COLORS_MOD_LABEL, colors.getChildText("mod-label"));
 
     return new Theme(name, themeFile, style);
   }
-
 }
