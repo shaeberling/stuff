@@ -19,6 +19,6 @@ package com.s13g.themetools.keystyler.util;
 /**
  * Simple Listener interface
  */
-public interface Listener {
-  void onCallback();
+public interface Listener<T> {
+  void onCallback(T value);
 }

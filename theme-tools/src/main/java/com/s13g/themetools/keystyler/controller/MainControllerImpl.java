@@ -17,6 +17,7 @@
 package com.s13g.themetools.keystyler.controller;
 
 import com.s13g.themetools.keystyler.model.Theme;
+import com.s13g.themetools.keystyler.util.Listener;
 import com.s13g.themetools.keystyler.view.MainViewInterface;
 
 import java.io.File;
@@ -29,10 +30,22 @@ import java.util.concurrent.Executors;
 public class MainControllerImpl implements MainController {
 
   private final MainViewInterface mView;
+  private final SettingsController mSettingsController;
 
-  public MainControllerImpl(MainViewInterface view) {
+  private Listener<String> mSkinRootChangedListener;
+
+  public MainControllerImpl(MainViewInterface view, SettingsController settingsController) {
     mView = view;
     mView.setController(this);
+    mSettingsController = settingsController;
+  }
+
+  @Override
+  public void onCreate() {
+    Optional<String> skinRoot = mSettingsController.getSkinRoot();
+    if (skinRoot.isPresent()) {
+      aysncScanThemesAndUpdateView(new File(skinRoot.get()));
+    }
   }
 
   @Override
@@ -42,15 +55,29 @@ public class MainControllerImpl implements MainController {
       return;
     }
 
+    mSettingsController.setSkinRoot(themeFolder.get().getAbsolutePath());
     System.out.println("Root: " + themeFolder.get().getAbsolutePath());
-    Executors.newSingleThreadExecutor().execute(() -> {
-      Optional<ThemeScanner> scanner = ThemeScanner.create(themeFolder.get());
-      mView.setScannedThemes(scanner.get().scan(true /*sortByName*/));
-    });
+    aysncScanThemesAndUpdateView(themeFolder.get());
   }
 
   @Override
   public void onThemeSelected(Theme theme) {
     mView.setSelectedTheme(theme);
+  }
+
+  @Override
+  public void setSkinRootChangedListener(Listener<String> listener) {
+    mSkinRootChangedListener = listener;
+  }
+
+  private void aysncScanThemesAndUpdateView(File themeFolder) {
+    if (mSkinRootChangedListener != null) {
+      mSkinRootChangedListener.onCallback(themeFolder.getAbsolutePath());
+    }
+
+    Executors.newSingleThreadExecutor().execute(() -> {
+      Optional<ThemeScanner> scanner = ThemeScanner.create(themeFolder);
+      mView.setScannedThemes(scanner.get().scan(true /*sortByName*/));
+    });
   }
 }
