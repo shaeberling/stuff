@@ -4,10 +4,15 @@
     <exclude-output />
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/src/main/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/generated" isTestSource="false" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="jdom-2.0.6" level="project" />
     <orderEntry type="library" name="guava-18.0" level="project" />
+    <orderEntry type="library" name="dagger-2.0.1" level="project" />
+    <orderEntry type="library" name="javax.inject-1" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="dagger-compiler-2.0.1" level="project" />
+    <orderEntry type="library" name="dagger-producers-2.0-beta" level="project" />
   </component>
 </module>

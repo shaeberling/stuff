@@ -17,26 +17,29 @@
 package com.s13g.themetools.keystyler;
 
 import com.s13g.themetools.keystyler.controller.MainController;
-import com.s13g.themetools.keystyler.controller.MainControllerImpl;
 import com.s13g.themetools.keystyler.controller.SettingsController;
-import com.s13g.themetools.keystyler.view.MainFxView;
+import com.s13g.themetools.keystyler.view.ViewModule;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+
+import javax.inject.Inject;
 
 /**
  * Main application class for KeyStylerApp.
  */
 public class KeyStylerApp extends Application {
-  private static final String APP_TITLE = "Keyboard Styler";
+  public static final String APP_TITLE = "Keyboard Styler";
 
   private Stage mStage;
 
-  private MainController mMainController;
-  private SettingsController mSettingsController;
+  @Inject
+  MainController mMainController;
+  @Inject
+  SettingsController mSettingsController;
+  @Inject
+  Scene mMainScene;
 
   public static void main(String[] args) {
     Application.launch(args);
@@ -44,30 +47,24 @@ public class KeyStylerApp extends Application {
 
   @Override
   public void start(Stage stage) throws Exception {
+    KeyStylerComponent component =
+            DaggerKeyStylerComponent.builder().viewModule(new ViewModule(stage)).build();
+    component.inject(this);
+
     mStage = stage;
 
     // Make sure we exit the application when the main stage closes.
     mStage.setOnCloseRequest((e) -> destroy());
-
-    FXMLLoader loader = new FXMLLoader(getClass().getResource("view/keystyler.fxml"));
-    Parent root = loader.load();
-    MainFxView mainFxView = (MainFxView) loader.getController();
-    mainFxView.initialize(stage);
-
-    mSettingsController = new SettingsController();
-    mMainController = new MainControllerImpl(mainFxView, mSettingsController);
-    mMainController.setSkinRootChangedListener((skinRoot) -> setStageTitleWithPath(skinRoot));
-
-    Scene mainScene = new Scene(root, 800, 600);
     mStage.setTitle(APP_TITLE);
-    mStage.setScene(mainScene);
+    mStage.setScene(mMainScene);
     mStage.show();
 
-    mMainController.onCreate();
-  }
+    // Change title of app.
+    mMainController.setSkinRootChangedListener((skinRoot) -> {
+      mStage.setTitle(KeyStylerApp.APP_TITLE + " - [" + skinRoot + "]");
+    });
 
-  private void setStageTitleWithPath(String path) {
-    mStage.setTitle(APP_TITLE + " - [" + path + "]");
+    mMainController.onCreate();
   }
 
   private void destroy() {

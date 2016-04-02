@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="dagger-producers-2.0-beta">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/libs/dagger-producers-2.0-beta.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
