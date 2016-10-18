@@ -12,16 +12,16 @@
 hs_err_pid*
 
 # User-specific stuff:
-# .idea/workspace.xml
-# .idea/tasks.xml
-# .idea/dictionaries
+truecar-query/.idea/workspace.xml
+truecar-query/.idea/tasks.xml
+truecar-query/.idea/dictionaries
 
 # Sensitive or high-churn files:
-# .idea/dataSources.ids
-# .idea/dataSources.xml
-# .idea/sqlDataSources.xml
-# .idea/dynamic.xml
-# .idea/uiDesigner.xml
+truecar-query/.idea/dataSources.ids
+truecar-query/.idea/dataSources.xml
+truecar-query/.idea/sqlDataSources.xml
+truecar-query/.idea/dynamic.xml
+truecar-query/.idea/uiDesigner.xml
 
 # Gradle:
 # .idea/gradle.xml
