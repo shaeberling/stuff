@@ -18,6 +18,7 @@ package com.s13g.truecar;
 
 import com.s13g.truecar.CarRequestConfig.Maker;
 import com.s13g.truecar.CarRequestConfig.Model;
+import com.s13g.truecar.data.SearchResponse;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -52,15 +53,17 @@ public class Main {
       if (!optCarJson.isPresent()) {
         return;
       }
-      JSONObject carJson = optCarJson.get();
+      SearchResponse searchResponse = new SearchResponse(optCarJson.get());
 
-      if (!checkApiStatus(carJson)) {
+      if (!searchResponse.checkApiStatus()) {
         return;
       }
 
-      System.out.println("Vehice Count: " + carJson.getInt("vehicleCount"));
-
-      // TODO: Continue here.
+      List<SearchResponse.Vehicle> vehicles = searchResponse.getVehicles();
+      for (SearchResponse.Vehicle vehicle : vehicles) {
+        System.out.println("\n===========================================");
+        System.out.println(vehicle);
+      }
     }
   }
 
@@ -81,17 +84,5 @@ public class Main {
     return Optional.of(new JSONObject(json));
   }
 
-  private static boolean checkApiStatus(JSONObject carJson) {
-    JSONObject apiStatus = carJson.getJSONObject("apiStatus");
-    if (apiStatus == null) {
-      System.err.println("Cannot find apiStatus");
-      return false;
-    }
-    int apiStatusCode = apiStatus.getInt("code");
-    if (apiStatusCode != 200) {
-      System.err.println("API Status Code: " + apiStatusCode);
-      return false;
-    }
-    return true;
-  }
+
 }
