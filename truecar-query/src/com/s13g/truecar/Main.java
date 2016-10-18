@@ -48,27 +48,50 @@ public class Main {
         return;
       }
 
-      String html = optHtml.get();
-      System.out.println("Parsing loaded HTML: " + html.length());
-      int start = html.indexOf(START_TOKEN);
-      if (start < 0) {
-        System.err.println("Cannot find start token");
+      Optional<JSONObject> optCarJson = parseJson(optHtml.get());
+      if (!optCarJson.isPresent()) {
+        return;
+      }
+      JSONObject carJson = optCarJson.get();
+
+      if (!checkApiStatus(carJson)) {
         return;
       }
 
-      int end = html.indexOf(END_TOKEN, start);
-      if (end < 0) {
-        System.err.println("Cannot find end token");
-        return;
-      }
-
-      String json = html.substring(start + START_TOKEN.length(), end);
-      System.out.println(json);
-
-      JSONObject carJson = new JSONObject(json);
       System.out.println("Vehice Count: " + carJson.getInt("vehicleCount"));
 
       // TODO: Continue here.
     }
+  }
+
+  private static Optional<JSONObject> parseJson(String html) {
+    System.out.println("Parsing loaded HTML: " + html.length());
+    int start = html.indexOf(START_TOKEN);
+    if (start < 0) {
+      System.err.println("Cannot find start token");
+      return Optional.empty();
+    }
+
+    int end = html.indexOf(END_TOKEN, start);
+    if (end < 0) {
+      System.err.println("Cannot find end token");
+      return Optional.empty();
+    }
+    String json = html.substring(start + START_TOKEN.length(), end);
+    return Optional.of(new JSONObject(json));
+  }
+
+  private static boolean checkApiStatus(JSONObject carJson) {
+    JSONObject apiStatus = carJson.getJSONObject("apiStatus");
+    if (apiStatus == null) {
+      System.err.println("Cannot find apiStatus");
+      return false;
+    }
+    int apiStatusCode = apiStatus.getInt("code");
+    if (apiStatusCode != 200) {
+      System.err.println("API Status Code: " + apiStatusCode);
+      return false;
+    }
+    return true;
   }
 }
