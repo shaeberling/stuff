@@ -26,8 +26,6 @@ import java.util.List;
 import java.util.Optional;
 
 public class Main {
-  private static final String START_TOKEN = "window.__INITIAL_STATE__=";
-  private static final String END_TOKEN = ";window.__GS_ENV_VARS__";
 
   private static List<CarRequestConfig> createWatches() {
     List<CarRequestConfig> watches = new ArrayList<>();
@@ -49,7 +47,7 @@ public class Main {
         return;
       }
 
-      Optional<JSONObject> optCarJson = parseJson(optHtml.get());
+      Optional<JSONObject> optCarJson = new HtmlParser(optHtml.get()).parseJson();
       if (!optCarJson.isPresent()) {
         return;
       }
@@ -66,23 +64,4 @@ public class Main {
       }
     }
   }
-
-  private static Optional<JSONObject> parseJson(String html) {
-    System.out.println("Parsing loaded HTML: " + html.length());
-    int start = html.indexOf(START_TOKEN);
-    if (start < 0) {
-      System.err.println("Cannot find start token");
-      return Optional.empty();
-    }
-
-    int end = html.indexOf(END_TOKEN, start);
-    if (end < 0) {
-      System.err.println("Cannot find end token");
-      return Optional.empty();
-    }
-    String json = html.substring(start + START_TOKEN.length(), end);
-    return Optional.of(new JSONObject(json));
-  }
-
-
 }
