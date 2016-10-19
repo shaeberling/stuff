@@ -59,13 +59,15 @@ class CarRequestConfig {
   private final int mMinYear;
   private final int mZipCode;
   private final int mRadiusMiles;
+  private final VehicleFilter mTopMatchFilter;
 
-  CarRequestConfig(Maker maker, Model model, int minYear, int zipCode, int radiusMiles) {
+  CarRequestConfig(Maker maker, Model model, int minYear, int zipCode, int radiusMiles, VehicleFilter topMatchFilter) {
     mMaker = maker;
     mModel = model;
     mMinYear = minYear;
     mZipCode = zipCode;
     mRadiusMiles = radiusMiles;
+    mTopMatchFilter = topMatchFilter;
   }
 
   /**
@@ -73,6 +75,10 @@ class CarRequestConfig {
    */
   String buildRequestUrl(int page) {
     return String.format(URL_PATTERN, mMaker, mModel, mZipCode, mMinYear, mRadiusMiles, page);
+  }
+
+  VehicleFilter getTopMatchFilter() {
+    return mTopMatchFilter;
   }
 
   @Override

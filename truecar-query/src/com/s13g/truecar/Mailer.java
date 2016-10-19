@@ -25,6 +25,7 @@ import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
@@ -83,7 +84,7 @@ class Mailer {
     mTo = to;
   }
 
-  void sendMatches(String subject, List<SearchResponse.Vehicle> vehicles) {
+  void sendMatches(String subject, List<SearchResponse.Vehicle> vehicles, VehicleFilter topMatchFilter) {
     Properties properties = System.getProperties();
     properties.setProperty("mail.smtp.host", mHost);
     properties.put("mail.smtp.starttls.enable", "true");
@@ -103,7 +104,7 @@ class Mailer {
       message.setFrom(new InternetAddress(mFrom));
       message.addRecipient(Message.RecipientType.TO, new InternetAddress(mTo));
       message.setSubject(subject);
-      message.setText(genMessageFromItems(vehicles));
+      message.setText(genMessageFromItems(vehicles, topMatchFilter));
       Transport.send(message);
       System.out.println("Email sent ...");
     } catch (MessagingException ex) {
@@ -111,9 +112,26 @@ class Mailer {
     }
   }
 
-  private String genMessageFromItems(List<SearchResponse.Vehicle> vehicles) {
-    String text = "Found " + vehicles.size() + " vehicles\n\n";
+  private String genMessageFromItems(List<SearchResponse.Vehicle> vehicles, VehicleFilter topMatchFilter) {
+    List<SearchResponse.Vehicle> topMatches = new ArrayList<>();
+    List<SearchResponse.Vehicle> rest = new ArrayList<>();
+
     for (SearchResponse.Vehicle vehicle : vehicles) {
+      if (topMatchFilter.matches(vehicle)) {
+        topMatches.add(vehicle);
+      } else {
+        rest.add(vehicle);
+      }
+    }
+
+    String text = "TOP matches: " + topMatches.size() + " vehicles\n\n";
+    for (SearchResponse.Vehicle vehicle : topMatches) {
+      text += vehicle.toString() + "\n\n";
+    }
+
+    text += "\n\n==========================================\n";
+    text += "Remaining:  " + vehicles.size() + " vehicles\n\n";
+    for (SearchResponse.Vehicle vehicle : rest) {
       text += vehicle.toString() + "\n\n";
     }
     return text;

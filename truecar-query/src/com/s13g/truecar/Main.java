@@ -29,22 +29,27 @@ import java.util.Optional;
 import java.util.Properties;
 
 public class Main {
+  private static final VehicleFilter whiteFourNew =
+      v -> v.getExteriorColor().toLowerCase().equals("white") &&
+          v.getNumDoors() == 4 &&
+          v.getYear() >= 2015;
 
   private static List<CarRequestConfig> createWatches() {
     List<CarRequestConfig> watches = new ArrayList<>();
     // watches.add(new CarRequestConfig(Maker.VW, Model.GOLF, 2000, 94122, 250));
-    // watches.add(new CarRequestConfig(Maker.VW, Model.GOLF_R, 2015, 94122, 250));
-    watches.add(new CarRequestConfig(Maker.VW, Model.GOLF_GTI, 2015, 94122, 250));
+    watches.add(new CarRequestConfig(Maker.VW, Model.GOLF_R, 2015, 94122, 250, whiteFourNew));
+    watches.add(new CarRequestConfig(Maker.VW, Model.GOLF_GTI, 2015, 94122, 250, whiteFourNew));
     return watches;
   }
 
   public static void main(String[] args) {
+    Optional<Mailer> optMailer = Optional.empty();
     Optional<Properties> optProperties = loadProperties();
     if (!optProperties.isPresent()) {
-      System.err.println("Cannot load config.properties file.");
-      return;
+      System.out.println("Cannot load config.properties file.");
+    } else {
+      optMailer = Mailer.from(optProperties.get());
     }
-    Optional<Mailer> optMailer = Mailer.from(optProperties.get());
 
     List<CarRequestConfig> watches = createWatches();
     for (CarRequestConfig watch : watches) {
@@ -55,7 +60,7 @@ public class Main {
         System.out.println(vehicle);
       }
       if (optMailer.isPresent()) {
-        optMailer.get().sendMatches("[TrueCar Alert] " + watch, vehicles);
+        optMailer.get().sendMatches("[TrueCar Alert] " + watch, vehicles, watch.getTopMatchFilter());
       } else {
         System.out.println("Not sending results via e-mail.");
       }
