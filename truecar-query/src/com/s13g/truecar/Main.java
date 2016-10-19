@@ -29,20 +29,35 @@ import java.util.Optional;
 import java.util.Properties;
 
 public class Main {
+  // TOP results are white cars, with four doors from 2015 or newer.
   private static final VehicleFilter whiteFourNew =
-      v -> v.getExteriorColor().toLowerCase().equals("white") &&
+      v -> (v.getGenericExteriorColor().toLowerCase().contains("white") ||
+          v.getExteriorColor().toLowerCase().contains("white")) &&
           v.getNumDoors() == 4 &&
           v.getYear() >= 2015;
+  // TOP result are white.
+  private static final VehicleFilter white =
+      v -> v.getGenericExteriorColor().toLowerCase().contains("white") ||
+          v.getExteriorColor().toLowerCase().contains("white");
 
   private static List<CarRequestConfig> createWatches() {
     List<CarRequestConfig> watches = new ArrayList<>();
-    // watches.add(new CarRequestConfig(Maker.VW, Model.GOLF, 2000, 94122, 250));
+    watches.add(new CarRequestConfig(Maker.AUDI, Model.TT, 2016, 94122, 250, white));
+    watches.add(new CarRequestConfig(Maker.AUDI, Model.TTS, 2016, 94122, 250, white));
     watches.add(new CarRequestConfig(Maker.VW, Model.GOLF_R, 2015, 94122, 250, whiteFourNew));
     watches.add(new CarRequestConfig(Maker.VW, Model.GOLF_GTI, 2015, 94122, 250, whiteFourNew));
     return watches;
   }
 
   public static void main(String[] args) {
+    // Use this to mark which vehicles an e-mail has already been sent for.
+    Optional<OldVehicleDb> optOldVehicleDb = OldVehicleDb.from(new File("old_vehicles.txt"));
+    if (!optOldVehicleDb.isPresent()) {
+      return;
+    }
+    OldVehicleDb oldVehicleDb = optOldVehicleDb.get();
+
+    // Use the mailer to mail out new results. Config data is taken from a config file.
     Optional<Mailer> optMailer = Optional.empty();
     Optional<Properties> optProperties = loadProperties();
     if (!optProperties.isPresent()) {
@@ -51,20 +66,23 @@ public class Main {
       optMailer = Mailer.from(optProperties.get());
     }
 
+    // Get all active watches, see above.
     List<CarRequestConfig> watches = createWatches();
     for (CarRequestConfig watch : watches) {
       List<SearchResponse.Vehicle> vehicles = new CompleteListRequester(watch).fetchAllVehicles();
       System.out.println("Number of vehicles: " + vehicles.size());
-      for (SearchResponse.Vehicle vehicle : vehicles) {
-        System.out.println("\n===========================================");
-        System.out.println(vehicle);
-      }
       if (optMailer.isPresent()) {
-        optMailer.get().sendMatches("[TrueCar Alert] " + watch, vehicles, watch.getTopMatchFilter());
+        if (optMailer.get().sendMatches("[TrueCar Alert] " + watch,
+            oldVehicleDb.filterOld(vehicles), watch.getTopMatchFilter())) {
+          oldVehicleDb.addVehicles(vehicles);
+        }
       } else {
         System.out.println("Not sending results via e-mail.");
       }
     }
+
+    // Persist the new list of already sent vehicles.
+    optOldVehicleDb.get().persist();
   }
 
   private static Optional<Properties> loadProperties() {

@@ -157,5 +157,19 @@ public class SearchResponse {
           "Transmission  : " + getTransmission() + '\n' +
           "ZIP Code      : " + getZipCode();
     }
+
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+      Vehicle vehicle = (Vehicle) o;
+      return mJsonRoot.equals(vehicle.mJsonRoot);
+    }
+
+    @Override
+    public int hashCode() {
+      return mJsonRoot.hashCode() + (31 * getVin().hashCode());
+    }
   }
 }

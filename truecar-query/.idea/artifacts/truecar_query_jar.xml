@@ -1,0 +1,11 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="truecar-query:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/truecar_query_jar</output-path>
+    <root id="archive" name="truecar-query.jar">
+      <element id="module-output" name="truecar-query" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/javax.mail-1.5.6.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/activation-1.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/json-20160810.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

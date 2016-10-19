@@ -52,4 +52,6 @@ crashlytics.properties
 crashlytics-build.properties
 
 config.properties
+old_vehicles.txt
+truecar-query/out
 

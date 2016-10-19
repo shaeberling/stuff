@@ -84,7 +84,12 @@ class Mailer {
     mTo = to;
   }
 
-  void sendMatches(String subject, List<SearchResponse.Vehicle> vehicles, VehicleFilter topMatchFilter) {
+  boolean sendMatches(String subject, List<SearchResponse.Vehicle> vehicles, VehicleFilter topMatchFilter) {
+    if (vehicles.isEmpty()) {
+      System.out.println("No new vehicle matches to send.");
+      return false;
+    }
+
     Properties properties = System.getProperties();
     properties.setProperty("mail.smtp.host", mHost);
     properties.put("mail.smtp.starttls.enable", "true");
@@ -107,8 +112,10 @@ class Mailer {
       message.setText(genMessageFromItems(vehicles, topMatchFilter));
       Transport.send(message);
       System.out.println("Email sent ...");
+      return true;
     } catch (MessagingException ex) {
       System.err.println("Cannot send email: " + ex.getMessage());
+      return false;
     }
   }
 

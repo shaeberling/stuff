@@ -36,7 +36,8 @@ class CarRequestConfig {
   }
 
   enum Model {
-    GOLF("golf"), GOLF_R("golf-r"), GOLF_GTI("golf-gti");
+    GOLF("golf"), GOLF_R("golf-r"), GOLF_GTI("golf-gti"),
+    TT("tt"), TTS("tts");
 
     String mRequestString;
 
