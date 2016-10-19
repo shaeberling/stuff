@@ -20,22 +20,33 @@ import com.s13g.truecar.CarRequestConfig.Maker;
 import com.s13g.truecar.CarRequestConfig.Model;
 import com.s13g.truecar.data.SearchResponse;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.Properties;
 
 public class Main {
 
   private static List<CarRequestConfig> createWatches() {
     List<CarRequestConfig> watches = new ArrayList<>();
-    watches.add(new CarRequestConfig(Maker.VW, Model.GOLF, 2000, 94122, 250));
-    watches.add(new CarRequestConfig(Maker.VW, Model.GOLF_R, 2015, 94122, 250));
+    // watches.add(new CarRequestConfig(Maker.VW, Model.GOLF, 2000, 94122, 250));
+    // watches.add(new CarRequestConfig(Maker.VW, Model.GOLF_R, 2015, 94122, 250));
     watches.add(new CarRequestConfig(Maker.VW, Model.GOLF_GTI, 2015, 94122, 250));
     return watches;
   }
 
   public static void main(String[] args) {
-    List<CarRequestConfig> watches = createWatches();
+    Optional<Properties> optProperties = loadProperties();
+    if (!optProperties.isPresent()) {
+      System.err.println("Cannot load config.properties file.");
+      return;
+    }
+    Optional<Mailer> optMailer = Mailer.from(optProperties.get());
 
+    List<CarRequestConfig> watches = createWatches();
     for (CarRequestConfig watch : watches) {
       List<SearchResponse.Vehicle> vehicles = new CompleteListRequester(watch).fetchAllVehicles();
       System.out.println("Number of vehicles: " + vehicles.size());
@@ -43,6 +54,26 @@ public class Main {
         System.out.println("\n===========================================");
         System.out.println(vehicle);
       }
+      if (optMailer.isPresent()) {
+        optMailer.get().sendMatches("[TrueCar Alert] " + watch, vehicles);
+      } else {
+        System.out.println("Not sending results via e-mail.");
+      }
+    }
+  }
+
+  private static Optional<Properties> loadProperties() {
+    File file = new File("config.properties");
+    if (!file.exists() || !file.isFile()) {
+      return Optional.empty();
+    }
+
+    try {
+      Properties properties = new Properties();
+      properties.load(new FileInputStream(file));
+      return Optional.of(properties);
+    } catch (IOException ex) {
+      return Optional.empty();
     }
   }
 }

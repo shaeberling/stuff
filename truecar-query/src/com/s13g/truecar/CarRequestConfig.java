@@ -74,4 +74,9 @@ class CarRequestConfig {
   String buildRequestUrl(int page) {
     return String.format(URL_PATTERN, mMaker, mModel, mZipCode, mMinYear, mRadiusMiles, page);
   }
+
+  @Override
+  public String toString() {
+    return mMaker + " " + mModel + " " + mMinYear;
+  }
 }
