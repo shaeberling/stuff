@@ -1,3 +1,19 @@
+/*
+ * Copyright 2016 Sascha Häberling
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
 package com.s13g.truecar.data;
 
 import org.json.JSONArray;
@@ -14,6 +30,18 @@ public class SearchResponse {
 
   public SearchResponse(JSONObject jsonRoot) {
     mJsonRoot = jsonRoot;
+  }
+
+  public int getNumPages() {
+    return (int) Math.ceil(getCount() / ((double) getNumPerPage()));
+  }
+
+  public int getCount() {
+    return mJsonRoot.getJSONObject("searchMeta").getInt("count");
+  }
+
+  public int getNumPerPage() {
+    return mJsonRoot.getJSONObject("searchMeta").getInt("perPage");
   }
 
   /**
@@ -50,15 +78,15 @@ public class SearchResponse {
     }
 
     public String getMakeAndModel() {
-      return mJsonRoot.getString("make") + " " + mJsonRoot.getString("model");
+      return getJsonString("make") + " " + getJsonString("model");
     }
 
     public String getVin() {
-      return mJsonRoot.getString("vin");
+      return getJsonString("vin");
     }
 
     public String getStockNumber() {
-      return mJsonRoot.getString("stockNumber");
+      return getJsonString("stockNumber");
     }
 
     public int getYear() {
@@ -70,11 +98,15 @@ public class SearchResponse {
     }
 
     public String getDriveDrain() {
-      return mJsonRoot.getString("drivetrain");
+      return getJsonString("drivetrain");
     }
 
     public String getExteriorColor() {
-      return mJsonRoot.getString("exteriorColor");
+      return getJsonString("exteriorColor");
+    }
+
+    public String getGenericExteriorColor() {
+      return getJsonString("exteriorGenericColor");
     }
 
     public int getListPrice() {
@@ -90,34 +122,40 @@ public class SearchResponse {
     }
 
     public String getTransmission() {
-      return mJsonRoot.getString("transmission");
+      return getJsonString("transmission");
     }
 
     public String getZipCode() {
-      return mJsonRoot.getString("zipcode");
+      return getJsonString("zipcode");
     }
 
     public String getListingUrl() {
       return "https://www.truecar.com/used-cars-for-sale/listing/" + getVin();
     }
 
+    private String getJsonString(String key) {
+      if (mJsonRoot.isNull(key)) {
+        return "null";
+      }
+      return mJsonRoot.getString(key);
+    }
+
     @Override
     public String toString() {
-      StringBuilder result = new StringBuilder();
-      result.append("Listing URL   : ").append(getListingUrl()).append('\n');
-      result.append("Make + Model  : ").append(getMakeAndModel()).append('\n');
-      result.append("VIN #         : ").append(getVin()).append('\n');
-      result.append("Stock #       : ").append(getStockNumber()).append('\n');
-      result.append("Year          : ").append(getYear()).append('\n');
-      result.append("# Doors       : ").append(getNumDoors()).append('\n');
-      result.append("ExtColor      : ").append(getExteriorColor()).append('\n');
-      result.append("Drive drain   : ").append(getDriveDrain()).append('\n');
-      result.append("List price    : ").append(getListPrice()).append('\n');
-      result.append("Member price  : ").append(getMemberPrice()).append('\n');
-      result.append("Mileage       : ").append(getMileage()).append('\n');
-      result.append("Transmission  : ").append(getTransmission()).append('\n');
-      result.append("ZIP Code      : ").append(getZipCode());
-      return result.toString();
+      return "Listing URL   : " + getListingUrl() + '\n' +
+          "Make + Model  : " + getMakeAndModel() + '\n' +
+          "VIN #         : " + getVin() + '\n' +
+          "Stock #       : " + getStockNumber() + '\n' +
+          "Year          : " + getYear() + '\n' +
+          "# Doors       : " + getNumDoors() + '\n' +
+          "GenExtColor   : " + getGenericExteriorColor() + '\n' +
+          "ExtColor      : " + getExteriorColor() + '\n' +
+          "Drive drain   : " + getDriveDrain() + '\n' +
+          "List price    : " + getListPrice() + '\n' +
+          "Member price  : " + getMemberPrice() + '\n' +
+          "Mileage       : " + getMileage() + '\n' +
+          "Transmission  : " + getTransmission() + '\n' +
+          "ZIP Code      : " + getZipCode();
     }
   }
 }

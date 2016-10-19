@@ -36,7 +36,7 @@ class CarRequestConfig {
   }
 
   enum Model {
-    GOLF_R("golf-r");
+    GOLF("golf"), GOLF_R("golf-r"), GOLF_GTI("golf-gti");
 
     String mRequestString;
 
@@ -52,16 +52,18 @@ class CarRequestConfig {
 
   private static final String URL_PATTERN =
       "https://www.truecar.com/used-cars-for-sale/listings/" +
-          "%s/%s/location-%s/?used_opt=usedmake&searchRadius=%s";
+          "%s/%s/location-%s/year-%s-max?used_opt=usedmake&searchRadius=%s&page=%s";
 
   private final Maker mMaker;
   private final Model mModel;
+  private final int mMinYear;
   private final int mZipCode;
   private final int mRadiusMiles;
 
-  CarRequestConfig(Maker maker, Model model, int zipCode, int radiusMiles) {
+  CarRequestConfig(Maker maker, Model model, int minYear, int zipCode, int radiusMiles) {
     mMaker = maker;
     mModel = model;
+    mMinYear = minYear;
     mZipCode = zipCode;
     mRadiusMiles = radiusMiles;
   }
@@ -69,7 +71,7 @@ class CarRequestConfig {
   /**
    * Builds the request URL.
    */
-  String buildRequestUrl() {
-    return String.format(URL_PATTERN, mMaker, mModel, mZipCode, mRadiusMiles);
+  String buildRequestUrl(int page) {
+    return String.format(URL_PATTERN, mMaker, mModel, mZipCode, mMinYear, mRadiusMiles, page);
   }
 }

@@ -19,45 +19,26 @@ package com.s13g.truecar;
 import com.s13g.truecar.CarRequestConfig.Maker;
 import com.s13g.truecar.CarRequestConfig.Model;
 import com.s13g.truecar.data.SearchResponse;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class Main {
 
   private static List<CarRequestConfig> createWatches() {
     List<CarRequestConfig> watches = new ArrayList<>();
-    watches.add(new CarRequestConfig(Maker.VW, Model.GOLF_R, 94122, 250));
+    watches.add(new CarRequestConfig(Maker.VW, Model.GOLF, 2000, 94122, 250));
+    watches.add(new CarRequestConfig(Maker.VW, Model.GOLF_R, 2015, 94122, 250));
+    watches.add(new CarRequestConfig(Maker.VW, Model.GOLF_GTI, 2015, 94122, 250));
     return watches;
   }
 
   public static void main(String[] args) {
     List<CarRequestConfig> watches = createWatches();
-    HttpUtil httpUtil = new HttpUtil();
 
     for (CarRequestConfig watch : watches) {
-      String carRequestUrl = watch.buildRequestUrl();
-
-      System.out.println("Loading URL: " + carRequestUrl);
-      Optional<String> optHtml = httpUtil.loadUrl(carRequestUrl);
-      if (!optHtml.isPresent()) {
-        System.err.println("Cannot load URL " + carRequestUrl);
-        return;
-      }
-
-      Optional<JSONObject> optCarJson = new HtmlParser(optHtml.get()).parseJson();
-      if (!optCarJson.isPresent()) {
-        return;
-      }
-      SearchResponse searchResponse = new SearchResponse(optCarJson.get());
-
-      if (!searchResponse.checkApiStatus()) {
-        return;
-      }
-
-      List<SearchResponse.Vehicle> vehicles = searchResponse.getVehicles();
+      List<SearchResponse.Vehicle> vehicles = new CompleteListRequester(watch).fetchAllVehicles();
+      System.out.println("Number of vehicles: " + vehicles.size());
       for (SearchResponse.Vehicle vehicle : vehicles) {
         System.out.println("\n===========================================");
         System.out.println(vehicle);
