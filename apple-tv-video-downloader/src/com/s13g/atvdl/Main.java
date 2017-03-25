@@ -1,6 +1,7 @@
 
 package com.s13g.atvdl;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteStreams;
 import org.json.JSONArray;
@@ -17,6 +18,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 public class Main {
   private static final String JSON_URL = "http://a1.phobos.apple.com/us/r1000/000/Features/atv/AutumnResources/videos/entries.json";
 
@@ -31,10 +34,14 @@ public class Main {
   }
 
   public static void main(String[] args) throws IOException {
-    String destinationArg = args[0];
-    File destination = new File(destinationArg);
-    if (!destination.mkdirs()) {
-      throw new IOException("Cannot create destination.");
+    checkArgument(args.length == 1, "Invalid number of arguments.");
+    File destination = new File(args[0]);
+    if (destination.exists() && !destination.isDirectory()) {
+      throw new IOException("Destination is not a directory: " + destination.getAbsolutePath());
+    }
+
+    if (!destination.exists() && !destination.mkdirs()) {
+      throw new IOException("Cannot create destination: " + destination.getAbsolutePath());
     }
 
     String jsonData = loadUrl(JSON_URL);
