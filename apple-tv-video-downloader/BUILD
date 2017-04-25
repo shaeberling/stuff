@@ -3,7 +3,9 @@ java_binary(
     srcs = 
         glob(["src/**/*.java"]),
     deps = [
-        "@google_guava//jar",
-        "@org_json//jar"
+        "@com_google_guava_guava//jar",
+        "@org_json//jar",
+        "@javax_inject_javax_inject//jar",
+        "@dagger//:dagger_with_compiler",
     ]
 )
