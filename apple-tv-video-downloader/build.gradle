@@ -1,0 +1,32 @@
+// Add plugin https://plugins.gradle.org/plugin/net.ltgt.apt
+plugins {
+  id 'net.ltgt.apt' version '0.21'
+  id 'application'
+}
+
+repositories {
+   jcenter()
+}
+
+apply plugin: 'java'
+
+
+// Add Dagger dependencies
+dependencies {
+  implementation 'org.json:json:20180813'
+  implementation 'com.google.guava:guava:21.0'
+  implementation 'com.google.dagger:dagger:2.21'
+  annotationProcessor 'com.google.dagger:dagger-compiler:2.21'
+}
+
+sourceSets {
+   main {
+      java {
+         srcDir 'src'
+      }
+   }
+}
+
+application {
+    mainClassName = 'com.s13g.atvdl.Main'
+}
